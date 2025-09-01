@@ -1,0 +1,9 @@
+[cluster]
+    # 集群节点配置
+    [cluster.node]
+        # 实例ID，节点集群中唯一。不填写默认自动生成唯一的实例ID
+        id = "login01"
+        # 实例名称
+        name = "login"
+        # 编解码器。可选：json | proto
+        codec = "proto"

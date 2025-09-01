@@ -1,0 +1,21 @@
+syntax = "proto3";
+package pb;
+option go_package = "./pb";
+
+enum Route {
+    NoRoute = 0;
+	Register = 1;
+	Login    = 2;
+    QuickStart = 1001;
+}
+
+enum Code {
+    Success = 0;
+    Failed = 1;
+}
+
+enum Gender {
+    Unknown = 0; 
+    Male = 1;
+    Female = 2;
+}

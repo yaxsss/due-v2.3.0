@@ -1,0 +1,22 @@
+syntax = "proto3";
+package pb;
+option go_package = "./pb";
+import "common.proto";
+
+message RegisterReq {
+    string name = 1;
+    string password = 2;
+}
+
+message RegisterResp {
+    Code code = 1;
+}
+
+message LoginReq {
+    string name = 1;
+    string password = 2;
+}
+
+message LoginResp {
+    Code code = 1;
+}

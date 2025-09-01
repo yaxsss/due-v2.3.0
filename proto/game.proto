@@ -1,0 +1,9 @@
+syntax = "proto3";
+package pb;
+option go_package = "./pb";
+import "common.proto";
+
+// 快速开始响应
+message QuickStartRes {
+  Code Code = 1; // 错误码
+}
