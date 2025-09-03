@@ -5,8 +5,11 @@ import (
 	"duedemo/pb"
 	"duedemo/shared/jwt"
 
+	"github.com/dobyte/due/v2/cluster"
 	"github.com/dobyte/due/v2/cluster/node"
+	"github.com/dobyte/due/v2/errors"
 	"github.com/dobyte/due/v2/log"
+	"github.com/dobyte/due/v2/session"
 )
 
 type Login struct {
@@ -25,7 +28,7 @@ func NewLogin(proxy *node.Proxy) *Login {
 
 func (l *Login) Init() {
 	l.proxy.Router().Group(func(group *node.RouterGroup) {
-		group.AddRouteHandler(int32(pb.Route_Register), false, l.register)
+		group.AddRouteHandler(int32(pb.Route_Register), true, l.register)
 		group.AddRouteHandler(int32(pb.Route_Login), false, l.login)
 	})
 }
@@ -54,8 +57,29 @@ func (l *Login) register(ctx node.Context) {
 	resp.Code = pb.Code_Success
 }
 
+// 检测异地登录
+func (l *Login) doCheckRemoteLogin(ctx context.Context, uid int64) {
+	gid, err := l.proxy.LocateGate(ctx, uid)
+	if err != nil && !errors.Is(err, errors.ErrNotFoundUserLocation) {
+		log.Errorf("locate user's gate failed:%v", err)
+		return
+	}
+	if gid == "" {
+		return
+	}
+
+	l.proxy.Disconnect(ctx, &cluster.DisconnectArgs{
+		Kind:   session.User,
+		Target: uid,
+		Force:  true,
+	})
+}
+
 // 用户登录
 func (l *Login) login(ctx node.Context) {
+	// 检测异地登录
+	l.doCheckRemoteLogin(ctx.Context(), 1)
+
 	req := &pb.LoginReq{}
 	resp := &pb.LoginResp{}
 	defer func() {
@@ -74,6 +98,8 @@ func (l *Login) login(ctx node.Context) {
 		resp.Code = pb.Code_Failed
 		return
 	}
+
+	ctx.BindGate(1)
 
 	resp.Code = pb.Code_Success
 }

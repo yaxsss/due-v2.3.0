@@ -21,6 +21,7 @@ func (l *Login) Init() {
 	l.proxy.AddRouteHandler(int32(pb.Route_Login), l.login)
 	l.proxy.AddHookListener(cluster.Start, l.startHandler)
 	l.proxy.AddEventListener(cluster.Connect, l.connectHandler)
+	l.proxy.AddEventListener(cluster.Disconnect, l.disconnectHandler)
 }
 
 func (l *Login) register(ctx *client.Context) {
@@ -76,12 +77,16 @@ func (l *Login) connectHandler(conn *client.Conn) {
 	msg := &cluster.Message{
 		Route: int32(pb.Route_Login),
 		Data: &pb.LoginReq{
-			Name:     "123456",
-			Password: "123456",
+			Name:     "admin",
+			Password: "admin123",
 		},
 	}
 	err := conn.Push(msg)
 	if err != nil {
 		log.Error("connect handler push error", "error", err)
 	}
+}
+
+func (l *Login) disconnectHandler(conn *client.Conn) {
+	log.Info("disconnect handler")
 }
