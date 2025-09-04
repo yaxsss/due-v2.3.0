@@ -98,7 +98,7 @@ func (l *Login) login(ctx node.Context) {
 		resp.Code = pb.Code_Failed
 		return
 	}
-
+	// 固定一个uid，为了测试
 	ctx.BindGate(1)
 
 	resp.Code = pb.Code_Success
